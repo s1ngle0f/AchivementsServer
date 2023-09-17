@@ -1,9 +1,11 @@
 package com.example.achivementsserver.config;
 
+import com.example.achivementsserver.service.JwtRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
@@ -15,6 +17,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
@@ -27,6 +30,9 @@ import javax.sql.DataSource;
 public class WebSecurityConfig {
     @Autowired
     DataSource dataSource;
+    @Autowired
+    @Lazy
+    JwtRequestFilter jwtRequestFilter;
 
     @Bean
     public UserDetailsService userDetailsService(AuthenticationManagerBuilder auth) throws Exception {
@@ -52,11 +58,12 @@ public class WebSecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/user/**", HttpMethod.PUT.name())).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/login")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/users")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/user/**", HttpMethod.DELETE.name())).hasAuthority("ADMIN")
+                        .requestMatchers(new AntPathRequestMatcher("/user/**", HttpMethod.DELETE.name())).hasAnyAuthority("ADMIN")
                         .anyRequest().authenticated()
-            )
+            ).sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.disable());
 //            .formLogin(Customizer.withDefaults())
-            .httpBasic(Customizer.withDefaults());
+//            .httpBasic(Customizer.withDefaults());
+        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }
