@@ -61,8 +61,6 @@ public class WebSecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/user/**", HttpMethod.DELETE.name())).hasAnyAuthority("ADMIN")
                         .anyRequest().authenticated()
             ).sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.disable());
-//            .formLogin(Customizer.withDefaults())
-//            .httpBasic(Customizer.withDefaults());
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
