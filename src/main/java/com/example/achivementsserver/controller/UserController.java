@@ -1,5 +1,6 @@
 package com.example.achivementsserver.controller;
 
+import com.example.achivementsserver.HelpFunctions;
 import com.example.achivementsserver.model.AuthentificationRequest;
 import com.example.achivementsserver.model.AuthentificationResponse;
 import com.example.achivementsserver.model.User;
@@ -7,6 +8,11 @@ import com.example.achivementsserver.repo.AchivementRepo;
 import com.example.achivementsserver.repo.CommentRepo;
 import com.example.achivementsserver.repo.UserRepo;
 import com.example.achivementsserver.service.JwtUtil;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,7 +23,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @RestController
@@ -34,31 +49,8 @@ public class UserController {
     private CommentRepo commentRepo;
     @Autowired
     private AchivementRepo achivementRepo;
-
-//    @PostMapping("/auth")
-//    public User loginn(@RequestBody AuthentificationRequest user){
-//        Logger.getLogger(user.getUsername());
-//        System.out.println(user.getPassword());
-//        System.out.println("00001100000");
-//        return null;
-//    }
-
-    @PostMapping("/login")
-    public AuthentificationResponse login(@RequestBody AuthentificationRequest loginRequest) throws Exception {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
-                            loginRequest.getPassword())
-            );
-
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String jwt = jwtUtil.generateToken(userDetails.getUsername());
-
-            return new AuthentificationResponse(jwt);
-        } catch (BadCredentialsException e) {
-            throw new Exception("Incorrect username or password", e);
-        }
-    }
+    @Value("${file.upload-dir}")
+    private String photosFolderPath;
 
     @GetMapping("/users")
     public List<User> getUsers(){
@@ -73,12 +65,21 @@ public class UserController {
     }
 
     @GetMapping("/user/{id}")
-    public User getUser(@PathVariable int id){
+    public User getUserById(@PathVariable int id){
         System.out.println("GetUser: " + userRepo.findUserById(id).toString());
         return userRepo.findUserById(id);
     }
 
-    @PostMapping("/user/{id}")
+    @GetMapping("/user")
+    public User getUserByUsername(@RequestParam(name = "username") String username){
+        if(username != null){
+            System.out.println("GetUser: " + userRepo.findUserByUsername(username).toString());
+            return userRepo.findUserByUsername(username);
+        }
+        return null;
+    }
+
+    @PostMapping("/user")
     public User editUser(@RequestBody User user){
         System.out.println("EditUser: " + user.toString());
         userRepo.saveAndFlush(user);
@@ -90,5 +91,44 @@ public class UserController {
         User user = userRepo.findUserById(id);
         userRepo.delete(user);
         return user;
+    }
+
+    @GetMapping("/image/avatar")
+    public ResponseEntity<Resource> getAvatar(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepo.findUserByUsername(authentication.getName());
+        String dirPath = photosFolderPath + File.separator + user.getId();
+        String path = dirPath + File.separator + HelpFunctions.findFileWithExtension(dirPath, "avatar");
+        File _file = new File(path);
+
+        try {
+            InputStream inputStream = new FileInputStream(path);
+            Resource resource = new InputStreamResource(inputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentDispositionFormData("attachment", _file.getName());
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(resource);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/image/avatar")
+    public void loadAvatar(@RequestParam("file") MultipartFile file){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepo.findUserByUsername(authentication.getName());
+        String path = photosFolderPath + File.separator + user.getId() + File.separator + "avatar" + "."  + file.getContentType();
+        System.out.println(path);
+        HelpFunctions.createIfNotExistFolder(path);
+        try {
+            Path filePath = Paths.get(path);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
