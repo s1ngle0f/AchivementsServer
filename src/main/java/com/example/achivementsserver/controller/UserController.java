@@ -118,17 +118,20 @@ public class UserController {
     }
 
     @PostMapping("/image/avatar")
-    public void loadAvatar(@RequestParam("file") MultipartFile file){
+    public ResponseEntity<String> loadAvatar(@RequestParam("file") MultipartFile file){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepo.findUserByUsername(authentication.getName());
-        String path = photosFolderPath + File.separator + user.getId() + File.separator + "avatar" + "."  + file.getContentType();
-        System.out.println(path);
+        String name = file.getOriginalFilename();
+        String extension = name.substring(name.lastIndexOf('.'));
+        String path = photosFolderPath + File.separator + user.getId() + File.separator + "avatar" + extension;
         HelpFunctions.createIfNotExistFolder(path);
         try {
             Path filePath = Paths.get(path);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            return ResponseEntity.ok("Avatar uploaded successfully");
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload avatar");
+//            throw new RuntimeException(e);
         }
     }
 }
