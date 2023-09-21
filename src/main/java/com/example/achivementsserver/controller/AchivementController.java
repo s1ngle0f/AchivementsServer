@@ -94,8 +94,10 @@ public class AchivementController {
         try {
             Path filePath = Paths.get(path);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("Avatar uploaded successfully");
             return ResponseEntity.ok("Avatar uploaded successfully");
         } catch (IOException e) {
+            System.out.println("Failed to upload avatar");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload avatar");
 //            throw new RuntimeException(e);
         }

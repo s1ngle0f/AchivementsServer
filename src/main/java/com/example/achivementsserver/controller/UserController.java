@@ -53,14 +53,19 @@ public class UserController {
     private String photosFolderPath;
 
     @GetMapping("/users")
-    public List<User> getUsers(){
-        System.out.println(1232131231);
-        return userRepo.findAll();
+    public List<User> getUsers(@RequestParam(name = "username", required = false) String username){
+        System.out.println("GETUSSSS");
+        if(username != null){
+            return userRepo.findUsersByUsernameContaining(username);
+        }else{
+            return userRepo.findAll();
+        }
     }
 
     @PutMapping("/user")
     public User createUser(@RequestBody User user){
         if(userRepo.findUserByUsername(user.getUsername()) == null) {
+//            user.resetAchivements();
             userRepo.saveAndFlush(user);
             return user;
         }
@@ -74,7 +79,7 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public User getUserByUsername(@RequestParam(name = "username") String username){
+    public User getUserByUsername(@RequestParam(name = "username", required = false) String username){
         if(username != null){
             System.out.println("GetUser: " + userRepo.findUserByUsername(username).toString());
             return userRepo.findUserByUsername(username);
@@ -88,6 +93,7 @@ public class UserController {
 
     @PostMapping("/user")
     public User editUser(@RequestBody User user){
+//        user.resetAchivements();
         System.out.println("EditUser: " + user.toString());
         userRepo.saveAndFlush(user);
         return user;
@@ -135,8 +141,10 @@ public class UserController {
         try {
             Path filePath = Paths.get(path);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("CREATED NEW AVATAR");
             return ResponseEntity.ok("Avatar uploaded successfully");
         } catch (IOException e) {
+            System.out.println("ERROR NEW AVATAR");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload avatar");
 //            throw new RuntimeException(e);
         }

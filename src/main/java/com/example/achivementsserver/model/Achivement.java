@@ -1,5 +1,7 @@
 package com.example.achivementsserver.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,22 +32,14 @@ public class Achivement {
     @JoinColumn(name = "achivement_id")
     private Set<Comment> comments = new HashSet<>();
 
-    public String getStatusText() {
-        switch (status){
-            case ACTIVE:
-                return "Active";
-            case COMPLETED:
-                return "Completed";
-            case FAILED:
-                return "Failed";
-            default:
-                return "Not stated";
-        }
-    }
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonBackReference
+    private User user;
     @Override
     public String toString() {
         return "Achivement{" +
-                ", id=" + id +
+                "id=" + id +
                 ", text='" + text + '\'' +
                 ", status='" + status + '\'' +
                 '}';

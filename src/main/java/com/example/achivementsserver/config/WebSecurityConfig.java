@@ -59,6 +59,7 @@ public class WebSecurityConfig {
 //                        .requestMatchers(new AntPathRequestMatcher("/user/**", HttpMethod.PUT.name())).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/login")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/users")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/valid_jwt")).permitAll()
                         .anyRequest().authenticated()
             ).sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.disable());
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);

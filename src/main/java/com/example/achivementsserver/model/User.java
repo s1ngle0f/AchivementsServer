@@ -1,5 +1,6 @@
 package com.example.achivementsserver.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,6 +28,7 @@ public class User {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
+//    @JsonManagedReference
     private List<Achivement> achivements = new ArrayList<>();
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -40,4 +42,11 @@ public class User {
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
     private Set<Role> roles = Set.of(Role.USER);
+
+//    public void resetAchivements(){
+//        for(Achivement achivement : achivements){
+//            if(achivement.getUser() != this)
+//                achivement.setUser(this);
+//        }
+//    }
 }
