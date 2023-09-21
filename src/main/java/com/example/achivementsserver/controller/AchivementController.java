@@ -1,7 +1,11 @@
 package com.example.achivementsserver.controller;
 
+import com.example.achivementsserver.AchivementsServerApplication;
 import com.example.achivementsserver.HelpFunctions;
+import com.example.achivementsserver.model.Achivement;
+import com.example.achivementsserver.model.Status;
 import com.example.achivementsserver.model.User;
+import com.example.achivementsserver.repo.AchivementRepo;
 import com.example.achivementsserver.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,14 +24,39 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 public class AchivementController {
     @Autowired
     private UserRepo userRepo;
+    @Autowired
+    private AchivementRepo achivementRepo;
     @Value("${file.upload-dir}")
     private String photosFolderPath;
+
+    @PostMapping("/get_new_achivement")
+    public User getNewAchivement(@RequestBody Status statusLastAchivement){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepo.findUserByUsername(authentication.getName());
+
+        Achivement achivement = new Achivement();
+        achivement.setText("generated text" + achivement.getId());
+        achivement.setStatus(Status.ACTIVE);
+
+        List<Achivement> achivements = user.getAchivements();
+        if(!achivements.isEmpty())
+            achivements.get(achivements.size()-1).setStatus(statusLastAchivement);
+        System.out.println(achivements);
+        achivements.add(achivement);
+//        user.setAchivements(achivements);
+        userRepo.saveAndFlush(user);
+
+        return user;
+    }
 
     @GetMapping("/image/{id}")
     public ResponseEntity<Resource> getImageAchivement(@PathVariable int id){

@@ -60,8 +60,11 @@ public class UserController {
 
     @PutMapping("/user")
     public User createUser(@RequestBody User user){
-        userRepo.saveAndFlush(user);
-        return user;
+        if(userRepo.findUserByUsername(user.getUsername()) == null) {
+            userRepo.saveAndFlush(user);
+            return user;
+        }
+        return null;
     }
 
     @GetMapping("/user/{id}")
@@ -75,6 +78,10 @@ public class UserController {
         if(username != null){
             System.out.println("GetUser: " + userRepo.findUserByUsername(username).toString());
             return userRepo.findUserByUsername(username);
+        }else{
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if(authentication != null)
+                return userRepo.findUserByUsername(authentication.getName());
         }
         return null;
     }
