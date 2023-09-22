@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "usr")
@@ -67,6 +64,10 @@ public class User {
 //        }
 //    }
 
+    public User cloneWithoutFriends(){
+        return new User(id, username, password, description, active, achivements, null, roles);
+    }
+
     @Override
     public String toString() {
         String friendsString = "[";
@@ -108,5 +109,15 @@ public class User {
                 ",\n" + tab + "roles=" + roles +
                 ",\n" + tab + "friends=" + friendsString +
                 "\n" + userEndTab + "}";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        boolean usernameCheck = Objects.equals(username, user.username);
+        boolean idCheck = Objects.equals(id, user.id);
+        return usernameCheck && idCheck;
     }
 }

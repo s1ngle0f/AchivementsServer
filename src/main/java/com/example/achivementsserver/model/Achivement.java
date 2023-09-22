@@ -26,7 +26,7 @@ public class Achivement {
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE;
-//    private String image;
+    private String image;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "achivement_id")

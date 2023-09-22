@@ -62,9 +62,7 @@ public class UserController {
         }else{
             res = userRepo.findAll();
         }
-        for(User user : res)
-            user.clearFriendsRecursive();
-        return res;
+        return HelpFunctions.getUsersForExport(res);
     }
 
     @PutMapping("/user")

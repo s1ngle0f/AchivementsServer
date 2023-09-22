@@ -83,14 +83,23 @@ class AchivementsServerApplicationTests {
     @Test
     public void testClearFreindsRecursive(){
         List<User> users = userRepo.findAll();
-        List<User> res = new ArrayList<>();
-        for (User user : users) {
-//            user..clearFriendsRecursive();
-        }
-        for (User user : users) {
+        List<User> res = getUsersForExport(users);
+        for (User user : res) {
             System.out.println(user);
         }
+    }
 
+    public static List<User> getUsersForExport(List<User> users){
+        List<User> res = new ArrayList<>();
+        for (User user : users) {
+            User newUser = user.cloneWithoutFriends();
+            newUser.setFriends(new HashSet<>());
+            for (User friend : user.getFriends()) {
+                newUser.addFriend(friend.cloneWithoutFriends());
+            }
+            res.add(newUser);
+        }
+        return res;
     }
 
     @Test

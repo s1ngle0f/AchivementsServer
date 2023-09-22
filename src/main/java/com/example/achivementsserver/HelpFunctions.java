@@ -1,10 +1,15 @@
 package com.example.achivementsserver;
 
+import com.example.achivementsserver.model.User;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 public class HelpFunctions {
     public static void createIfNotExistFolder(String path){
@@ -43,5 +48,18 @@ public class HelpFunctions {
             }
         }
         return null;
+    }
+
+    public static List<User> getUsersForExport(List<User> users){
+        List<User> res = new ArrayList<>();
+        for (User user : users) {
+            User newUser = user.cloneWithoutFriends();
+            newUser.setFriends(new HashSet<>());
+            for (User friend : user.getFriends()) {
+                newUser.addFriend(friend.cloneWithoutFriends());
+            }
+            res.add(newUser);
+        }
+        return res;
     }
 }
