@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -53,6 +55,42 @@ class AchivementsServerApplicationTests {
         if(userRepo.findUserByUsername(user.getUsername()) == null) userRepo.saveAndFlush(user);
         if(userRepo.findUserByUsername(userAdmin.getUsername()) == null) userRepo.saveAndFlush(userAdmin);
         getUsers();
+    }
+
+    @Test
+    public void addFriend(){
+        getUsers();
+        System.out.println("-----------------------");
+        User user1 = userRepo.findUserByUsername("u");
+        User user2 = userRepo.findUserByUsername("a");
+        user1.addFriend(user2);
+        user2.addFriend(user1);
+//        userRepo.saveAndFlush(user1);
+        userRepo.saveAndFlush(user2);
+        getUsers();
+    }
+
+    @Test
+    public void clearFriend(){
+        User user1 = userRepo.findUserByUsername("u");
+        User user2 = userRepo.findUserByUsername("a");
+        user1.setFriends(null);
+        user2.setFriends(null);
+        userRepo.saveAndFlush(user1);
+        getUsers();
+    }
+
+    @Test
+    public void testClearFreindsRecursive(){
+        List<User> users = userRepo.findAll();
+        List<User> res = new ArrayList<>();
+        for (User user : users) {
+//            user..clearFriendsRecursive();
+        }
+        for (User user : users) {
+            System.out.println(user);
+        }
+
     }
 
     @Test

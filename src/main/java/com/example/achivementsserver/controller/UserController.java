@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 public class UserController {
@@ -55,11 +56,15 @@ public class UserController {
     @GetMapping("/users")
     public List<User> getUsers(@RequestParam(name = "username", required = false) String username){
         System.out.println("GETUSSSS");
+        List<User> res;
         if(username != null){
-            return userRepo.findUsersByUsernameContaining(username);
+            res = userRepo.findUsersByUsernameContaining(username);
         }else{
-            return userRepo.findAll();
+            res = userRepo.findAll();
         }
+        for(User user : res)
+            user.clearFriendsRecursive();
+        return res;
     }
 
     @PutMapping("/user")
@@ -67,7 +72,7 @@ public class UserController {
         if(userRepo.findUserByUsername(user.getUsername()) == null) {
 //            user.resetAchivements();
             userRepo.saveAndFlush(user);
-            return user;
+            return user.clearFriendsRecursive();
         }
         return null;
     }
@@ -75,18 +80,18 @@ public class UserController {
     @GetMapping("/user/{id}")
     public User getUserById(@PathVariable int id){
         System.out.println("GetUser: " + userRepo.findUserById(id).toString());
-        return userRepo.findUserById(id);
+        return userRepo.findUserById(id).clearFriendsRecursive();
     }
 
     @GetMapping("/user")
     public User getUserByUsername(@RequestParam(name = "username", required = false) String username){
         if(username != null){
             System.out.println("GetUser: " + userRepo.findUserByUsername(username).toString());
-            return userRepo.findUserByUsername(username);
+            return userRepo.findUserByUsername(username).clearFriendsRecursive();
         }else{
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if(authentication != null)
-                return userRepo.findUserByUsername(authentication.getName());
+                return userRepo.findUserByUsername(authentication.getName()).clearFriendsRecursive();
         }
         return null;
     }
@@ -96,14 +101,61 @@ public class UserController {
 //        user.resetAchivements();
         System.out.println("EditUser: " + user.toString());
         userRepo.saveAndFlush(user);
-        return user;
+        return user.clearFriendsRecursive();
     }
 
     @DeleteMapping("/user/{id}")
     public User deleteUser(@PathVariable int id){
         User user = userRepo.findUserById(id);
         userRepo.delete(user);
-        return user;
+        return user.clearFriendsRecursive();
+    }
+
+    @GetMapping("/friends")
+    public Set<User> getFriends(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepo.findUserByUsername(authentication.getName());
+        return user.getFriends();
+    }
+
+    @PostMapping("/friend")
+    public User addFriend(@RequestBody User friend){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepo.findUserByUsername(authentication.getName());
+        user.addFriend(friend);
+        userRepo.saveAndFlush(user);
+        return user.clearFriendsRecursive();
+    }
+
+    @DeleteMapping("/friend")
+    public User removeFriend(@RequestBody User friend){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepo.findUserByUsername(authentication.getName());
+        user.removeFriend(friend);
+        userRepo.saveAndFlush(user);
+        return user.clearFriendsRecursive();
+    }
+
+    @PostMapping("/friend/{id}")
+    public User addFriendById(@PathVariable int id){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepo.findUserByUsername(authentication.getName());
+        User friend = userRepo.findUserById(id);
+        if(friend != null)
+            user.addFriend(friend);
+        userRepo.saveAndFlush(user);
+        return user.clearFriendsRecursive();
+    }
+
+    @DeleteMapping("/friend/{id}")
+    public User removeFriendById(@PathVariable int id){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepo.findUserByUsername(authentication.getName());
+        User friend = userRepo.findUserById(id);
+        if(friend != null)
+            user.removeFriend(friend);
+        userRepo.saveAndFlush(user);
+        return user.clearFriendsRecursive();
     }
 
     @GetMapping("/image/avatar")

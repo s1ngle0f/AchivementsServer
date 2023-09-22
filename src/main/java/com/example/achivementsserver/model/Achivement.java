@@ -26,16 +26,16 @@ public class Achivement {
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE;
-    private String image;
+//    private String image;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "achivement_id")
     private Set<Comment> comments = new HashSet<>();
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    @JsonBackReference
-    private User user;
+//    @ManyToOne
+//    @JoinColumn(name = "user_id")
+//    @JsonBackReference
+//    private User user;
     @Override
     public String toString() {
         return "Achivement{" +

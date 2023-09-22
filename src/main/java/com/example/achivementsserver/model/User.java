@@ -15,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString
+//@ToString
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +31,7 @@ public class User {
     @JsonManagedReference
     private List<Achivement> achivements = new ArrayList<>();
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_friend",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -43,10 +43,70 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles = Set.of(Role.USER);
 
+    public void addFriend(User user){
+        if(!friends.stream().anyMatch(_user -> user.id == _user.id))
+            friends.add(user);
+    }
+
+    public void removeFriend(User user){
+        if(friends.stream().anyMatch(_user -> user.id == _user.id))
+            friends.remove(user);
+    }
+
+    public User clearFriendsRecursive(){
+        if(friends != null)
+            for (User user : friends)
+                user.setFriends(null);
+        return this;
+    }
+
 //    public void resetAchivements(){
 //        for(Achivement achivement : achivements){
 //            if(achivement.getUser() != this)
 //                achivement.setUser(this);
 //        }
 //    }
+
+    @Override
+    public String toString() {
+        String friendsString = "[";
+        if(friends != null)
+            for (User user : friends)
+                friendsString += "\n\t" + user.toString(2);
+        friendsString += "]";
+        return "User{" +
+                "\n\tid=" + id +
+                ",\n\tusername='" + username + '\'' +
+                ",\n\tpassword='" + password + '\'' +
+                ",\n\tdescription='" + description + '\'' +
+                ",\n\tactive=" + active +
+                ",\n\tachivements=" + achivements +
+                ",\n\troles=" + roles +
+                ",\n\tfriends=" + friendsString +
+                "\n}";
+    }
+
+    public String toString(int countTab) {
+        String userEndTab = "\t".repeat(countTab - 1);
+        String tab = "\t".repeat(countTab);
+        String friendsString = "[";
+
+//        if (friends != null) {
+//            for (User user : friends) {
+//                friendsString += "\n" + tab + user.toString(countTab + 1);
+//            }
+//        }
+
+        friendsString += "]";
+        return "User{" +
+                "\n" + tab + "id=" + id +
+                ",\n" + tab + "username='" + username + '\'' +
+                ",\n" + tab + "password='" + password + '\'' +
+                ",\n" + tab + "description='" + description + '\'' +
+                ",\n" + tab + "active=" + active +
+                ",\n" + tab + "achivements=" + achivements +
+                ",\n" + tab + "roles=" + roles +
+                ",\n" + tab + "friends=" + friendsString +
+                "\n" + userEndTab + "}";
+    }
 }
