@@ -25,7 +25,7 @@ public class User {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
-    @JsonManagedReference
+//    @JsonManagedReference
     private List<Achivement> achivements = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)

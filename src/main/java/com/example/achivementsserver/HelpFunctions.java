@@ -53,13 +53,17 @@ public class HelpFunctions {
     public static List<User> getUsersForExport(List<User> users){
         List<User> res = new ArrayList<>();
         for (User user : users) {
-            User newUser = user.cloneWithoutFriends();
-            newUser.setFriends(new HashSet<>());
-            for (User friend : user.getFriends()) {
-                newUser.addFriend(friend.cloneWithoutFriends());
-            }
-            res.add(newUser);
+            res.add(getUserForExport(user));
         }
         return res;
+    }
+
+    public static User getUserForExport(User user){
+        User newUser = user.cloneWithoutFriends();
+        newUser.setFriends(new HashSet<>());
+        for (User friend : user.getFriends()) {
+            newUser.addFriend(friend.cloneWithoutFriends());
+        }
+        return newUser;
     }
 }
