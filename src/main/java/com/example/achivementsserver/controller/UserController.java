@@ -175,7 +175,29 @@ public class UserController {
                     .headers(headers)
                     .body(resource);
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/image/avatar/{id}")
+    public ResponseEntity<Resource> getAvatarById(@PathVariable int id){
+        String dirPath = photosFolderPath + File.separator + id;
+        String path = dirPath + File.separator + HelpFunctions.findFileWithExtension(dirPath, "avatar");
+        File _file = new File(path);
+
+        try {
+            InputStream inputStream = new FileInputStream(path);
+            Resource resource = new InputStreamResource(inputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentDispositionFormData("attachment", _file.getName());
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(resource);
+        } catch (IOException e) {
+//            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

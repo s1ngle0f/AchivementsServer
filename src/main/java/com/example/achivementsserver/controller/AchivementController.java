@@ -54,8 +54,8 @@ public class AchivementController {
         achivements.add(achivement);
 //        user.setAchivements(achivements);
         userRepo.saveAndFlush(user);
-
-        return user;
+        System.out.println("Get new Achivement");
+        return user.clearFriendsRecursive();
     }
 
     @GetMapping("/image/{id}")
@@ -78,7 +78,7 @@ public class AchivementController {
                     .headers(headers)
                     .body(resource);
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
