@@ -36,6 +36,12 @@ public class Achivement {
 //    @JoinColumn(name = "user_id")
 //    @JsonBackReference
 //    private User user;
+
+    public void addComment(Comment comment){
+        if(!comments.stream().anyMatch(_comment -> comment.getId() == _comment.getId()))
+            comments.add(comment);
+    }
+
     @Override
     public String toString() {
         return "Achivement{" +

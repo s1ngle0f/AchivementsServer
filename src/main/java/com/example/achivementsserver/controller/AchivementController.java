@@ -3,6 +3,7 @@ package com.example.achivementsserver.controller;
 import com.example.achivementsserver.AchivementsServerApplication;
 import com.example.achivementsserver.HelpFunctions;
 import com.example.achivementsserver.model.Achivement;
+import com.example.achivementsserver.model.Comment;
 import com.example.achivementsserver.model.Status;
 import com.example.achivementsserver.model.User;
 import com.example.achivementsserver.repo.AchivementRepo;
@@ -24,10 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 public class AchivementController {
@@ -37,6 +35,21 @@ public class AchivementController {
     private AchivementRepo achivementRepo;
     @Value("${file.upload-dir}")
     private String photosFolderPath;
+
+    @PostMapping("/add_comment/{id}")
+    public User addComment(@PathVariable int id, @RequestBody Comment newComment){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepo.findUserByUsername(authentication.getName());
+
+        Optional<Achivement> foundAchivement = user.getAchivements().stream().filter(_achivement -> _achivement.getId() == id).findFirst();
+        if(foundAchivement.isPresent()){
+            Achivement achivement = foundAchivement.get();
+            achivement.addComment(newComment);
+        }
+
+        userRepo.saveAndFlush(user);
+        return userRepo.findUserByUsername(authentication.getName()).clearFriendsRecursive();
+    }
 
     @PostMapping("/get_new_achivement")
     public User getNewAchivement(@RequestBody Status statusLastAchivement){
