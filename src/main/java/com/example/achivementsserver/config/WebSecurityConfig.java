@@ -57,7 +57,7 @@ public class WebSecurityConfig {
                     .requestMatchers(new AntPathRequestMatcher("/user/**", HttpMethod.GET.name())).permitAll()
                     .requestMatchers(new AntPathRequestMatcher("/image/**", HttpMethod.GET.name())).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/user/**", HttpMethod.DELETE.name())).hasAnyAuthority("ADMIN")
-//                        .requestMatchers(new AntPathRequestMatcher("/user/**", HttpMethod.PUT.name())).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/user", HttpMethod.PUT.name())).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/login")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/users")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/valid_jwt")).permitAll()

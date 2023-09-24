@@ -1,6 +1,7 @@
 package com.example.achivementsserver;
 
 import com.example.achivementsserver.model.User;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,6 +13,8 @@ import java.util.HashSet;
 import java.util.List;
 
 public class HelpFunctions {
+    public static BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
     public static void createIfNotExistFolder(String path){
         Path directoryPath = Paths.get(path);
         if (!Files.isDirectory(directoryPath))

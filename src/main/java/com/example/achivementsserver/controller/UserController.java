@@ -3,6 +3,7 @@ package com.example.achivementsserver.controller;
 import com.example.achivementsserver.HelpFunctions;
 import com.example.achivementsserver.model.AuthentificationRequest;
 import com.example.achivementsserver.model.AuthentificationResponse;
+import com.example.achivementsserver.model.Role;
 import com.example.achivementsserver.model.User;
 import com.example.achivementsserver.repo.AchivementRepo;
 import com.example.achivementsserver.repo.CommentRepo;
@@ -67,8 +68,11 @@ public class UserController {
 
     @PutMapping("/user")
     public User createUser(@RequestBody User user){
+        System.out.println("Create user");
         if(userRepo.findUserByUsername(user.getUsername()) == null) {
 //            user.resetAchivements();
+            user.setRoles(Set.of(Role.USER));
+            user.setPassword(HelpFunctions.bCryptPasswordEncoder.encode(user.getPassword()));
             userRepo.saveAndFlush(user);
             return user.clearFriendsRecursive();
         }
@@ -88,7 +92,7 @@ public class UserController {
             return userRepo.findUserByUsername(username).clearFriendsRecursive();
         }else{
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if(authentication != null)
+            if(authentication != null && userRepo.findUserByUsername(authentication.getName()) != null)
                 return userRepo.findUserByUsername(authentication.getName()).clearFriendsRecursive();
         }
         return null;

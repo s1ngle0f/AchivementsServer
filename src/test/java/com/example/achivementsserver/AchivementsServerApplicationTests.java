@@ -108,6 +108,12 @@ class AchivementsServerApplicationTests {
     }
 
     @Test
+    public void deleteUser(){
+        userRepo.delete(userRepo.findUserById(4));
+        getUsers();
+    }
+
+    @Test
     public void getResourceFolder(){
         // Указываем путь и имя файла
         String fileName = photosFolderPath + File.separator + "example.txt";
