@@ -59,6 +59,7 @@ public class AchivementController {
         Achivement achivement = new Achivement();
         achivement.setText("generated text" + achivement.getId());
         achivement.setStatus(Status.ACTIVE);
+        achivement.setOwnerId(user.getId());
 
         List<Achivement> achivements = user.getAchivements();
         if(!achivements.isEmpty())
@@ -74,9 +75,8 @@ public class AchivementController {
     @GetMapping("/image/{id}")
     public ResponseEntity<Resource> getImageAchivement(@PathVariable int id){
         System.out.println("123131");
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepo.findUserByUsername(authentication.getName());
-        String dirPath = photosFolderPath + File.separator + user.getId();
+        Achivement achivement = achivementRepo.findAchivementById(id);
+        String dirPath = photosFolderPath + File.separator + achivement.getOwnerId();
         String path = dirPath + File.separator + HelpFunctions.findFileWithExtension(dirPath, String.valueOf(id));
         File _file = new File(path);
 

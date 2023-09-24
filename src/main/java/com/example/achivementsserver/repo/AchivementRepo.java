@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface AchivementRepo extends JpaRepository<Achivement, Integer> {
 //    List<Achivement> findAchivementsByUser(User user);
+    Achivement findAchivementById(int id);
 }

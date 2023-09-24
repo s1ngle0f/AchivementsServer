@@ -32,10 +32,7 @@ public class Achivement {
     @JoinColumn(name = "achivement_id")
     private Set<Comment> comments = new HashSet<>();
 
-//    @ManyToOne
-//    @JoinColumn(name = "user_id")
-//    @JsonBackReference
-//    private User user;
+    private int ownerId;
 
     public void addComment(Comment comment){
         if(!comments.stream().anyMatch(_comment -> comment.getId() == _comment.getId()))
