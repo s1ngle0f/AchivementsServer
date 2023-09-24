@@ -57,7 +57,7 @@ public class AchivementController {
         User user = userRepo.findUserByUsername(authentication.getName());
 
         Achivement achivement = new Achivement();
-        achivement.setText("generated text" + achivement.getId());
+        achivement.setText(HelpFunctions.getNewAchivement());
         achivement.setStatus(Status.ACTIVE);
         achivement.setOwnerId(user.getId());
 
@@ -66,7 +66,6 @@ public class AchivementController {
             achivements.get(achivements.size()-1).setStatus(statusLastAchivement);
         System.out.println(achivements);
         achivements.add(achivement);
-//        user.setAchivements(achivements);
         userRepo.saveAndFlush(user);
         System.out.println("Get new Achivement");
         return user.clearFriendsRecursive();
